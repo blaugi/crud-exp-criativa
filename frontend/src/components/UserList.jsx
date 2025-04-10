@@ -86,7 +86,6 @@ const UserList = () => {
                                 <th>Ano Nasc.</th>
                                 <th>Gênero</th>
                                 <th>CPF</th>
-                                <th>Email</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
@@ -98,7 +97,6 @@ const UserList = () => {
                                     <td>{user.anoNascimento}</td>
                                     <td>{user.genero}</td>
                                     <td>{user.cpf}</td>
-                                    <td>{user.email}</td>
                                     <td className="action-buttons">
                                         <Link to={`/users/${user.id}`} className="btn btn-secondary">
                                             Ver

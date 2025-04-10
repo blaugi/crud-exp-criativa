@@ -119,11 +119,6 @@ const UserDetail = () => {
                     <div className="detail-label">CPF</div>
                     <div className="detail-value">{user.cpf}</div>
                 </div>
-
-                <div className="detail-item">
-                    <div className="detail-label">Email</div>
-                    <div className="detail-value">{user.email}</div>
-                </div>
             </div>
         </div>
     );
