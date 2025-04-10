@@ -13,10 +13,6 @@ app.use(express.json());
 const validateUser = (user) => {
   const errors = [];
   if (!user.nome) errors.push('Nome é obrigatório');
-  if (!user.email) errors.push('Email é obrigatório');
-  if (user.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email)) {
-    errors.push('Email inválido');
-  }
   return errors;
 };
 

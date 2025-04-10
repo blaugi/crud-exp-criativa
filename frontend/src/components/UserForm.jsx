@@ -11,7 +11,6 @@ const UserForm = () => {
 
     const [formData, setFormData] = useState({
         nome: '',
-        email: '',
         anoNascimento: '',
         endereco: '',
         genero: '',
@@ -25,19 +24,22 @@ const UserForm = () => {
     useEffect(() => {
         if (isEditMode) {
             const fetchUser = async () => {
-                try {
-                    setLoading(true);
-                    const userData = await userService.getUser(id);
-                    setFormData({
-                        nome: userData.nome,
-                        email: userData.email,
-                    });
-                } catch (error) {
-                    showNotification('Erro ao carregar dados do usuário', 'error');
-                } finally {
-                    setLoading(false);
-                }
-            };
+                    try {
+                        setLoading(true);
+                        const userData = await userService.getUser(id);
+                        setFormData({
+                            nome: userData.nome || '',
+                            anoNascimento: userData.anoNascimento || '',
+                            endereco: userData.endereco || '',
+                            genero: userData.genero || '',
+                            cpf: userData.cpf || '',
+                        });
+                    } catch (error) {
+                        showNotification('Erro ao carregar dados do usuário', 'error');
+                    } finally {
+                        setLoading(false);
+                    }
+                };          
 
             fetchUser();
         }
@@ -59,65 +61,81 @@ const UserForm = () => {
         }
     };
 
-    const validateForm = () => {
+   const validateForm = () => {
         const newErrors = {};
 
         if (!formData.nome.trim()) {
             newErrors.nome = 'Nome é obrigatório';
         }
-        if (!formData.email.trim()) {
-            newErrors.email = 'Email é obrigatório';
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-            newErrors.email = 'Email inválido';
-        }
 
         if (!formData.anoNascimento) {
             newErrors.anoNascimento = 'Ano de nascimento é obrigatório';
         }
-        if (!formData.endereco.trim()) {
-            newErrors.endereco = 'Endereço é obrigatório';
-        }
+        
         if (!formData.genero.trim()) {
             newErrors.genero = 'Gênero é obrigatório';
         }
-        if (!formData.cpf.trim()) {
-            newErrors.cpf = 'CPF é obrigatório';
+        if (formData.cpf && formData.cpf.trim()) {
+            // Count only digits in CPF
+            const cpfDigits = formData.cpf.replace(/\D/g, '');
+            if (cpfDigits.length !== 11) {
+                newErrors.cpf = 'CPF deve ter 11 dígitos';
+            }
         }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
-    };
+    }; 
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        if (!validateForm()) {
-            return;
+    if (!validateForm()) {
+        return;
+    }
+
+    try {
+        setLoading(true);
+
+        // Create a clean copy of form data (remove empty fields)
+        const cleanedFormData = Object.fromEntries(
+            Object.entries(formData).filter(([_, value]) => 
+                value !== null && value !== undefined && value !== ''
+            )
+        );
+
+        if (isEditMode) {
+            // Log the update attempt
+            console.log('Attempting to update user:', id, cleanedFormData);
+            await userService.updateUser(id, cleanedFormData);
+            showNotification('Usuário atualizado com sucesso!', 'success');
+        } else {
+            await userService.createUser(cleanedFormData);
+            showNotification('Usuário criado com sucesso!', 'success');
         }
 
-        try {
-            setLoading(true);
-
-            if (isEditMode) {
-                await userService.updateUser(id, formData);
-                showNotification('Usuário atualizado com sucesso', 'success');
-            } else {
-                await userService.createUser(formData);
-                showNotification('Usuário criado com sucesso', 'success');
-            }
-
-            setTimeout(() => {
-                navigate('/');
-            }, 2000);
-        } catch (error) {
-            const errorMessage = error.response?.data?.errors
-                ? error.response.data.errors.join(', ')
-                : 'Erro ao processar a solicitação';
-
-            showNotification(errorMessage, 'error');
-            setLoading(false);
+        // Delay navigation to allow notification to be visible
+        setTimeout(() => {
+            navigate('/');
+        }, 2000);
+        
+    } catch (error) {
+        setLoading(false);
+        
+        // Detailed error handling
+        let errorMessage = 'Erro ao processar requisição';
+        
+        if (error.response) {
+            console.error('Server response:', error.response);
+            // Try to extract useful error information
+            errorMessage = error.response.data?.message || 
+                           error.response.data?.error || 
+                           `Erro no servidor: ${error.response.status}`;
         }
-    };
+        
+        showNotification(errorMessage, 'error');
+    }
+};
 
     const showNotification = (message, type) => {
         setNotification({ message, type });
@@ -144,6 +162,17 @@ const UserForm = () => {
             <div className="card">
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
+                        <label htmlFor="nome">Nome</label>
+                        <input
+                            type="text"
+                            id="nome"
+                            name="nome"
+                            value={formData.nome}
+                            onChange={handleChange}
+                        />
+                        {errors.nome && <p className="error-text">{errors.nome}</p>}
+                    </div>
+                    <div className="form-group">
                         <label htmlFor="anoNascimento">Ano de Nascimento</label>
                         <input
                             type="number"
@@ -154,7 +183,6 @@ const UserForm = () => {
                         />
                         {errors.anoNascimento && <p className="error-text">{errors.anoNascimento}</p>}
                     </div>
-
                     <div className="form-group">
                         <label htmlFor="endereco">Endereço</label>
                         <input

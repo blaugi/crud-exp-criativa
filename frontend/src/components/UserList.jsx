@@ -57,10 +57,19 @@ const UserList = () => {
             )}
 
             <div className="page-header">
-                <h1>Lista de Usuários - Matheus Girardi</h1>
-                <Link to="/users/new" className="btn btn-primary">
-                    Novo Usuário
-                </Link>
+            <h1>Lista de Usuários - Matheus Girardi</h1>
+            <div style={{ display: 'flex', gap: '10px' }}>
+                <button 
+                    onClick={fetchUsers} 
+                    className="btn btn-secondary"
+                    disabled={loading}
+                >
+                    {loading ? 'Atualizando...' : 'Atualizar'}
+                    </button>
+                    <Link to="/users/new" className="btn btn-primary">
+                        Novo Usuário
+                    </Link>
+                </div>
             </div>
 
             {users.length === 0 ? (
