@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
 );
 
 -- Inserindo dados de exemplo
-INSERT INTO usuarios (nome, anoNascimento, endereco, genero, cpf, email)
+INSERT INTO usuarios (nome, anoNascimento, endereco, genero, cpf)
 VALUES
   ('Matheus Girardi', 1985, 'Rua A, 123', 'Masculino', '123.456.789-00'),
   ('Maria Oliveira', 1990, 'Av. B, 456', 'Feminino', '987.654.321-00'),
