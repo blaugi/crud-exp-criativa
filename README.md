@@ -1,4 +1,4 @@
-# CRUD Expressão Criativa
+# CRUD Experiência Criativa
 
 Este projeto é uma aplicação CRUD (Create, Read, Update, Delete) completa com frontend em React e backend em Node.js.
 
